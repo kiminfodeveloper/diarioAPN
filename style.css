@@ -365,6 +365,102 @@ a:focus {
     color: #fff;
 }
 
+.pid-warning {
+    background: linear-gradient(90deg, #fffbe6 60%, #f6e05e 100%);
+    color: #b7791f;
+    border: 2px solid #f6e05e;
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin: 0 auto 24px auto;
+    max-width: 700px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(246, 224, 94, 0.13);
+    animation: pulse-warning 1.2s infinite alternate;
+    z-index: 1000;
+    position: relative;
+}
+
+@keyframes pulse-warning {
+    0% {
+        box-shadow: 0 0 0 0 rgba(246, 224, 94, 0.5);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 16px 8px rgba(246, 224, 94, 0.25);
+        transform: scale(1.03);
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(44, 44, 44, 0.55);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInModal 0.2s;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(44, 44, 44, 0.18);
+    padding: 36px 32px 28px 32px;
+    min-width: 320px;
+    max-width: 90vw;
+    text-align: center;
+    position: relative;
+    animation: popInModal 0.25s;
+}
+
+@keyframes popInModal {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-content h2 {
+    margin-bottom: 18px;
+    color: #764ba2;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.modal-content input[type="text"] {
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    transition: border-color 0.2s;
+}
+
+.modal-content input[type="text"]:focus {
+    border-color: #764ba2;
+    outline: none;
+}
+
 @media (max-width: 768px) {
     .container {
         margin: 10px;

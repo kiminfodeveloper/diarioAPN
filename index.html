@@ -8,12 +8,66 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <div id="pid-warning" class="pid-warning">
+            ⚠️ <strong>Atenção:</strong> Não esqueça de pedir o
+            <strong>PID</strong> ao iniciar o atendimento!
+        </div>
+        <!-- Modal para Contrato/CNPJ -->
+        <div id="modalContrato" class="modal-overlay" style="display: none">
+            <div class="modal-content">
+                <h2>Informe o Contrato ou CNPJ</h2>
+                <input
+                    type="text"
+                    id="inputContratoModal"
+                    placeholder="Digite o Contrato ou CNPJ"
+                />
+                <button
+                    id="btnConfirmContrato"
+                    class="btn-primary"
+                    style="margin-top: 18px"
+                >
+                    Confirmar
+                </button>
+                <button
+                    id="btnVisualizar"
+                    class="btn-secondary"
+                    style="margin-top: 18px; margin-left: 10px"
+                >
+                    👁️ Visualizar Registros e Gráfico
+                </button>
+            </div>
+        </div>
+        <!-- Modal para confirmação do PID -->
+        <div id="modalPID" class="modal-overlay" style="display: none">
+            <div class="modal-content">
+                <h2>Você confirmou o PID?</h2>
+                <button
+                    id="btnPIDSim"
+                    class="btn-primary"
+                    style="margin: 10px 10px 0 0"
+                >
+                    Sim
+                </button>
+                <button
+                    id="btnPIDNao"
+                    class="btn-secondary"
+                    style="
+                        background: linear-gradient(
+                            135deg,
+                            #f56565 0%,
+                            #ed8936 100%
+                        );
+                    "
+                >
+                    Não
+                </button>
+            </div>
+        </div>
         <div class="container">
             <div class="header">
                 <h1>📝 Diário de Registro APN</h1>
                 <p>Sistema de controle e acompanhamento de protocolos</p>
             </div>
-
             <div class="content">
                 <div class="form-section">
                     <h2>Novo Registro</h2>
@@ -30,7 +84,6 @@
                                     required
                                 />
                             </div>
-
                             <div class="form-group">
                                 <label for="interlocutor"
                                     >Nome do Interlocutor *</label
@@ -42,7 +95,6 @@
                                     required
                                 />
                             </div>
-
                             <div class="form-group">
                                 <label for="protocolo">Protocolo *</label>
                                 <input
@@ -52,7 +104,6 @@
                                     required
                                 />
                             </div>
-
                             <div class="form-group">
                                 <label for="dataLigacao"
                                     >Data da Ligação *</label
@@ -64,7 +115,6 @@
                                     required
                                 />
                             </div>
-
                             <div class="form-group full-width">
                                 <label for="motivo">Motivo do Contato *</label>
                                 <textarea
@@ -74,7 +124,6 @@
                                     placeholder="Descreva o motivo do contato..."
                                 ></textarea>
                             </div>
-
                             <div class="form-group full-width">
                                 <label>Resolução *</label>
                                 <div class="radio-group">
@@ -113,20 +162,24 @@
                                 </div>
                             </div>
                         </div>
-
                         <button type="submit" class="btn-primary">
                             💾 Salvar Registro
                         </button>
                     </form>
                 </div>
-
                 <div class="stats-section">
                     <h2>📊 Estatísticas</h2>
                     <div class="chart-container">
                         <canvas id="statusChart"></canvas>
                     </div>
+                    <button
+                        id="exportChartBtn"
+                        class="btn-secondary"
+                        style="margin-top: 18px"
+                    >
+                        ⬇️ Exportar Gráfico para CSV
+                    </button>
                 </div>
-
                 <div class="records-section">
                     <div
                         style="
@@ -140,11 +193,24 @@
                         <button id="exportBtn" class="btn-secondary">
                             📁 Exportar para TXT
                         </button>
+                        <button
+                            id="clearBtn"
+                            class="btn-secondary"
+                            style="
+                                background: linear-gradient(
+                                    135deg,
+                                    #f56565 0%,
+                                    #ed8936 100%
+                                );
+                                margin-left: 10px;
+                            "
+                        >
+                            🗑️ Limpar Registros
+                        </button>
                     </div>
                     <div id="recordsList"></div>
                 </div>
             </div>
-
             <div class="footer">
                 <p>Desenvolvido por <strong>KIM Info TEC</strong></p>
                 <p>
@@ -152,13 +218,11 @@
                         href="https://github.com/kiminfodeveloper/diarioAPN"
                         target="_blank"
                         rel="noopener noreferrer"
+                        >📄 Documentação no GitHub</a
                     >
-                        📄 Documentação no GitHub
-                    </a>
                 </p>
             </div>
         </div>
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script src="script.js"></script>
     </body>

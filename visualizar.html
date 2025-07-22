@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Visualização de Registros e Gráfico - Diário APN</title>
+        <link rel="icon" href="logo.png" type="image/png" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>👁️ Visualização de Registros e Gráfico</h1>
+                <p>
+                    Veja os registros salvos e estatísticas sem necessidade de
+                    preencher contrato.
+                </p>
+            </div>
+            <div class="content">
+                <div class="stats-section">
+                    <h2>📊 Estatísticas</h2>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                    <button
+                        id="exportChartBtn"
+                        class="btn-secondary"
+                        style="margin-top: 18px"
+                    >
+                        ⬇️ Exportar Gráfico para CSV
+                    </button>
+                </div>
+                <div class="records-section">
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 20px;
+                        "
+                    >
+                        <h2>Registros Salvos</h2>
+                        <div>
+                            <button id="exportBtn" class="btn-secondary">
+                                📁 Exportar para TXT
+                            </button>
+                            <button
+                                id="btnVoltar"
+                                class="btn-secondary"
+                                style="margin-left: 10px"
+                            >
+                                ⬅️ Voltar para Registro
+                            </button>
+                        </div>
+                    </div>
+                    <div id="recordsList"></div>
+                </div>
+            </div>
+            <div class="footer">
+                <p>Desenvolvido por <strong>KIM Info TEC</strong></p>
+                <p>
+                    <a
+                        href="https://github.com/kiminfodeveloper/diarioAPN"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        📄 Documentação no GitHub
+                    </a>
+                </p>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+        <script>
+            // Funções para puxar e exibir dados do localStorage
+            function carregarRegistros() {
+                return JSON.parse(localStorage.getItem("registrosAPN") || "[]");
+            }
+            function calcularEstatisticas(registros) {
+                const stats = { resolvidos: 0, bko: 0, supervisao: 0 };
+                registros.forEach((registro) => {
+                    switch (registro.resolucao) {
+                        case "Resolvido":
+                            stats.resolvidos++;
+                            break;
+                        case "BKO":
+                            stats.bko++;
+                            break;
+                        case "Supervisão":
+                            stats.supervisao++;
+                            break;
+                    }
+                });
+                return stats;
+            }
+            function formatarData(dataISO) {
+                const data = new Date(dataISO + "T00:00:00");
+                return data.toLocaleDateString("pt-BR");
+            }
+            function exibirRegistros(registros) {
+                const container = document.getElementById("recordsList");
+                if (!registros.length) {
+                    container.innerHTML =
+                        '<div class="no-records">Nenhum registro encontrado</div>';
+                    return;
+                }
+                container.innerHTML = registros
+                    .map(
+                        (registro) => `
+            <div class="record-item">
+                <div class="record-header">
+                    <div class="record-number">Registro Nº${
+                        registro.numero
+                    }</div>
+                    <div class="resolution-badge resolution-${registro.resolucao
+                        .toLowerCase()
+                        .replace("ã", "a")}">
+                        ${registro.resolucao}
+                    </div>
+                </div>
+                <div class="record-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Empresa/CNPJ</div>
+                        <div class="detail-value">${registro.contrato}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Interlocutor</div>
+                        <div class="detail-value">${registro.interlocutor}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Protocolo</div>
+                        <div class="detail-value">${registro.protocolo}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Data da Ligação</div>
+                        <div class="detail-value">${formatarData(
+                            registro.dataLigacao
+                        )}</div>
+                    </div>
+                    <div class="detail-item" style="grid-column: 1 / -1;">
+                        <div class="detail-label">Motivo</div>
+                        <div class="detail-value">${registro.motivo}</div>
+                    </div>
+                </div>
+            </div>
+        `
+                    )
+                    .join("");
+            }
+            function criarGrafico(registros) {
+                const ctx = document
+                    .getElementById("statusChart")
+                    .getContext("2d");
+                if (!registros.length) {
+                    document.querySelector(".chart-container").innerHTML =
+                        '<div class="no-data-message">📊 Nenhum dado disponível para exibir gráfico</div>';
+                    return;
+                }
+                const dados = calcularEstatisticas(registros);
+                new Chart(ctx, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Resolvidos", "BKO", "Supervisão"],
+                        datasets: [
+                            {
+                                data: [
+                                    dados.resolvidos,
+                                    dados.bko,
+                                    dados.supervisao,
+                                ],
+                                backgroundColor: [
+                                    "#48bb78",
+                                    "#f56565",
+                                    "#ed8936",
+                                ],
+                                borderColor: ["#38a169", "#e53e3e", "#dd6b20"],
+                                borderWidth: 2,
+                                hoverOffset: 10,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Status dos Protocolos",
+                                font: { size: 16, weight: "bold" },
+                                color: "#4a5568",
+                            },
+                            legend: {
+                                position: "bottom",
+                                labels: {
+                                    padding: 20,
+                                    font: { size: 12 },
+                                    color: "#4a5568",
+                                },
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || "";
+                                        const value = context.parsed;
+                                        const total =
+                                            context.dataset.data.reduce(
+                                                (a, b) => a + b,
+                                                0
+                                            );
+                                        const percentage = (
+                                            (value / total) *
+                                            100
+                                        ).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+            function exportarGraficoParaCSV(registros) {
+                const stats = calcularEstatisticas(registros);
+                const linhas = [
+                    ["Status", "Quantidade"],
+                    ["Resolvido", stats.resolvidos],
+                    ["BKO", stats.bko],
+                    ["Supervisão", stats.supervisao],
+                ];
+                const csv = linhas.map((linha) => linha.join(",")).join("\n");
+                const blob = new Blob([csv], {
+                    type: "text/csv;charset=utf-8;",
+                });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `estatisticas_grafico_apn_${
+                    new Date().toISOString().split("T")[0]
+                }.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+            function exportarParaTXT(registros) {
+                if (!registros.length) {
+                    alert("Não há registros para exportar!");
+                    return;
+                }
+                let conteudo = "DIÁRIO DE REGISTRO APN\n";
+                conteudo += "========================\n\n";
+                registros.forEach((registro) => {
+                    conteudo += `Registro Nº${registro.numero}\n`;
+                    conteudo += `Empresa/CNPJ: ${registro.contrato}\n`;
+                    conteudo += `Interlocutor: ${registro.interlocutor}\n`;
+                    conteudo += `Protocolo: ${registro.protocolo}\n`;
+                    conteudo += `Motivo: ${registro.motivo}\n`;
+                    conteudo += `Data: ${formatarData(registro.dataLigacao)}\n`;
+                    conteudo += `Resolução: ${registro.resolucao}\n\n`;
+                    conteudo += "---\n\n";
+                });
+                const blob = new Blob([conteudo], {
+                    type: "text/plain;charset=utf-8",
+                });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `registros_apn_${
+                    new Date().toISOString().split("T")[0]
+                }.txt`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+            document.addEventListener("DOMContentLoaded", function () {
+                const registros = carregarRegistros();
+                exibirRegistros(registros);
+                criarGrafico(registros);
+                document
+                    .getElementById("exportChartBtn")
+                    .addEventListener("click", function () {
+                        exportarGraficoParaCSV(registros);
+                    });
+                document
+                    .getElementById("exportBtn")
+                    .addEventListener("click", function () {
+                        exportarParaTXT(registros);
+                    });
+                document
+                    .getElementById("btnVoltar")
+                    .addEventListener("click", function () {
+                        window.location.href = "index.html";
+                    });
+            });
+        </script>
+    </body>
+</html>

@@ -3,6 +3,84 @@ let registros = [];
 let contadorRegistros = 1;
 let statusChart = null;
 
+// Controle de bloqueio do formulário
+let bloqueado = true;
+
+// Ao carregar a página, exibir modal de contrato/CNPJ
+window.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("modalContrato").style.display = "flex";
+    document
+        .getElementById("registroForm")
+        .querySelectorAll("input, textarea, select, button")
+        .forEach((el) => {
+            if (
+                el.id !== "inputContratoModal" &&
+                el.id !== "btnConfirmContrato"
+            )
+                el.disabled = true;
+        });
+});
+
+// Modal Contrato/CNPJ
+const modalContrato = document.getElementById("modalContrato");
+const inputContratoModal = document.getElementById("inputContratoModal");
+const btnConfirmContrato = document.getElementById("btnConfirmContrato");
+
+btnConfirmContrato.addEventListener("click", function () {
+    const valor = inputContratoModal.value.trim();
+    if (!valor) {
+        inputContratoModal.focus();
+        inputContratoModal.style.borderColor = "#f56565";
+        return;
+    }
+    inputContratoModal.style.borderColor = "#e2e8f0";
+    modalContrato.style.display = "none";
+    // Abrir modal PID
+    document.getElementById("modalPID").style.display = "flex";
+});
+
+inputContratoModal.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") btnConfirmContrato.click();
+});
+
+// Modal PID
+const modalPID = document.getElementById("modalPID");
+const btnPIDSim = document.getElementById("btnPIDSim");
+const btnPIDNao = document.getElementById("btnPIDNao");
+
+btnPIDSim.addEventListener("click", function () {
+    // Preencher campo contrato e liberar formulário
+    const valor = inputContratoModal.value.trim();
+    document.getElementById("contrato").value = valor;
+    document.getElementById("contrato").readOnly = true;
+    document
+        .getElementById("registroForm")
+        .querySelectorAll("input, textarea, select, button")
+        .forEach((el) => {
+            el.disabled = false;
+        });
+    bloqueado = false;
+    modalPID.style.display = "none";
+    // Limpar input do modal para o próximo ciclo
+    inputContratoModal.value = "";
+});
+
+btnPIDNao.addEventListener("click", function () {
+    alert("Por favor, confirme o PID antes de prosseguir.");
+    modalPID.style.display = "none";
+    modalContrato.style.display = "flex";
+    inputContratoModal.focus();
+});
+
+// Bloquear envio do formulário se bloqueado
+const registroForm = document.getElementById("registroForm");
+registroForm.addEventListener("submit", function (e) {
+    if (bloqueado) {
+        e.preventDefault();
+        return;
+    }
+});
+
 // Inicialização
 document.addEventListener("DOMContentLoaded", function () {
     carregarRegistros();
@@ -23,6 +101,73 @@ document
 
 document.getElementById("exportBtn").addEventListener("click", exportarParaTXT);
 
+document.getElementById("clearBtn").addEventListener("click", limparRegistros);
+
+document
+    .getElementById("exportChartBtn")
+    .addEventListener("click", exportarGraficoParaCSV);
+
+const btnVisualizar = document.getElementById("btnVisualizar");
+if (btnVisualizar) {
+    btnVisualizar.addEventListener("click", function () {
+        window.location.href = "visualizar.html";
+    });
+}
+
+function exportarGraficoParaCSV() {
+    const stats = calcularEstatisticas();
+    const linhas = [
+        ["Status", "Quantidade"],
+        ["Resolvido", stats.resolvidos],
+        ["BKO", stats.bko],
+        ["Supervisão", stats.supervisao],
+    ];
+    const csv = linhas.map((linha) => linha.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `estatisticas_grafico_apn_${
+        new Date().toISOString().split("T")[0]
+    }.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// Função para limpar registros do localStorage e atualizar a interface
+function limparRegistros() {
+    if (
+        confirm(
+            "Tem certeza que deseja limpar todos os registros? Esta ação não pode ser desfeita."
+        )
+    ) {
+        localStorage.removeItem("registrosAPN");
+        registros = [];
+        contadorRegistros = 1;
+        exibirRegistros();
+        atualizarGrafico();
+        mostrarMensagemLimpeza();
+    }
+}
+
+function mostrarMensagemLimpeza() {
+    const mensagem = document.createElement("div");
+    mensagem.className = "success-message";
+    mensagem.style.background = "#fed7d7";
+    mensagem.style.color = "#742a2a";
+    mensagem.style.borderLeft = "4px solid #f56565";
+    mensagem.textContent = "Todos os registros foram removidos!";
+
+    const recordsSection = document.querySelector(".records-section");
+    recordsSection.insertBefore(mensagem, recordsSection.firstChild);
+
+    setTimeout(() => {
+        mensagem.remove();
+    }, 3000);
+}
+
 // Função para carregar registros do localStorage
 function carregarRegistros() {
     const saved = JSON.parse(localStorage.getItem("registrosAPN") || "[]");
@@ -34,6 +179,7 @@ function carregarRegistros() {
 
 // Função para salvar registro
 function salvarRegistro() {
+    if (bloqueado) return;
     const form = document.getElementById("registroForm");
     const formData = new FormData(form);
 
@@ -65,6 +211,23 @@ function salvarRegistro() {
 
     // Atualizar gráfico
     atualizarGrafico();
+
+    // Bloquear novamente e pedir novo Contrato/CNPJ e PID
+    bloqueado = true;
+    document.getElementById("contrato").readOnly = false;
+    document.getElementById("contrato").value = "";
+    document
+        .getElementById("registroForm")
+        .querySelectorAll("input, textarea, select, button")
+        .forEach((el) => {
+            if (
+                el.id !== "inputContratoModal" &&
+                el.id !== "btnConfirmContrato"
+            )
+                el.disabled = true;
+        });
+    modalContrato.style.display = "flex";
+    inputContratoModal.focus();
 }
 
 // Função para exibir registros
