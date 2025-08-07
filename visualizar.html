@@ -8,13 +8,57 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <!-- Cookie Consent Banner -->
+        <div id="cookieBanner" class="cookie-banner" style="display: none">
+            <div class="cookie-content">
+                <div class="cookie-text">
+                    <h3>🍪 Política de Privacidade e Cookies</h3>
+                    <p>
+                        Este site utiliza cookies e armazenamento local para
+                        funcionamento adequado.
+                        <strong
+                            >Não armazenamos nenhuma informação online</strong
+                        >
+                        - todos os dados ficam salvos apenas no seu dispositivo
+                        (localStorage). O único vínculo online é para envio de
+                        feedback por email quando solicitado.
+                    </p>
+                    <p>
+                        <strong>Uso Profissional:</strong> Este sistema é
+                        destinado exclusivamente para uso profissional e
+                        corporativo. Todos os dados são mantidos localmente em
+                        seu dispositivo para máxima segurança e privacidade.
+                    </p>
+                </div>
+                <div class="cookie-actions">
+                    <button id="acceptCookies" class="btn-primary">
+                        ✅ Aceitar e Continuar
+                    </button>
+                    <button id="learnMore" class="btn-secondary">
+                        📖 Saber Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="container">
             <div class="header">
-                <h1>👁️ Visualização de Registros e Gráfico</h1>
-                <p>
-                    Veja os registros salvos e estatísticas sem necessidade de
-                    preencher contrato.
-                </p>
+                <div class="header-top">
+                    <div class="header-left">
+                        <h1>👁️ Visualização de Registros e Gráfico</h1>
+                        <p>
+                            Veja os registros salvos e estatísticas sem
+                            necessidade de preencher contrato.
+                        </p>
+                    </div>
+                    <button
+                        id="btnFeedback"
+                        class="btn-feedback"
+                        title="Enviar Feedback"
+                    >
+                        💬 Feedback
+                    </button>
+                </div>
             </div>
             <div class="content">
                 <div class="stats-section">
@@ -45,11 +89,46 @@
                                 📁 Exportar para TXT
                             </button>
                             <button
+                                id="exportCsvBtn"
+                                class="btn-secondary"
+                                style="margin-left: 10px"
+                            >
+                                📊 Exportar para CSV
+                            </button>
+                            <button
+                                id="exportJsonBtn"
+                                class="btn-secondary"
+                                style="margin-left: 10px"
+                            >
+                                🔄 Exportar para JSON
+                            </button>
+                            <button
+                                id="clearBtn"
+                                class="btn-secondary"
+                                style="
+                                    background: linear-gradient(
+                                        135deg,
+                                        #f56565 0%,
+                                        #ed8936 100%
+                                    );
+                                    margin-left: 10px;
+                                "
+                            >
+                                🗑️ Limpar Registros
+                            </button>
+                            <button
                                 id="btnVoltar"
                                 class="btn-secondary"
                                 style="margin-left: 10px"
                             >
                                 ⬅️ Voltar para Registro
+                            </button>
+                            <button
+                                id="btnImportar"
+                                class="btn-secondary"
+                                style="margin-left: 10px"
+                            >
+                                📥 Importar Registros
                             </button>
                         </div>
                     </div>
@@ -69,8 +148,375 @@
                 </p>
             </div>
         </div>
+
+        <!-- Modal para Edição de Registro -->
+        <div id="modalEditar" class="modal-overlay" style="display: none">
+            <div class="modal-content modal-large">
+                <h2>✏️ Editar Registro</h2>
+                <form id="formEditar">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editContrato"
+                                >Nº Contrato ou CNPJ da Empresa *</label
+                            >
+                            <input
+                                type="text"
+                                id="editContrato"
+                                name="contrato"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="editInterlocutor"
+                                >Nome do Interlocutor *</label
+                            >
+                            <input
+                                type="text"
+                                id="editInterlocutor"
+                                name="interlocutor"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="editProtocolo">Protocolo *</label>
+                            <input
+                                type="text"
+                                id="editProtocolo"
+                                name="protocolo"
+                                required
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label for="editDataLigacao"
+                                >Data da Ligação *</label
+                            >
+                            <input
+                                type="date"
+                                id="editDataLigacao"
+                                name="dataLigacao"
+                                required
+                            />
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="editMotivo">Motivo do Contato *</label>
+                            <textarea
+                                id="editMotivo"
+                                name="motivo"
+                                required
+                                placeholder="Descreva o motivo do contato..."
+                            ></textarea>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Resolução *</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input
+                                        type="radio"
+                                        id="editResolvido"
+                                        name="resolucao"
+                                        value="Resolvido"
+                                        required
+                                    />
+                                    <label for="editResolvido">Resolvido</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input
+                                        type="radio"
+                                        id="editBko"
+                                        name="resolucao"
+                                        value="BKO"
+                                        required
+                                    />
+                                    <label for="editBko">BKO</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input
+                                        type="radio"
+                                        id="editSupervisao"
+                                        name="resolucao"
+                                        value="Supervisão"
+                                        required
+                                    />
+                                    <label for="editSupervisao"
+                                        >Supervisão</label
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn-primary">
+                            💾 Salvar Alterações
+                        </button>
+                        <button
+                            type="button"
+                            id="btnCancelarEdicao"
+                            class="btn-secondary"
+                        >
+                            ❌ Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Feedback -->
+        <div id="feedbackModal" class="modal-overlay" style="display: none">
+            <div class="modal-content feedback-modal">
+                <div class="feedback-header">
+                    <h2>💬 Enviar Feedback</h2>
+                    <p>
+                        Ajude-nos a melhorar o sistema! Reporte bugs ou envie
+                        sugestões.
+                    </p>
+                </div>
+                <form id="feedbackForm" class="feedback-form">
+                    <div class="form-group">
+                        <label for="feedbackType">📋 Tipo de Feedback:</label>
+                        <select id="feedbackType" name="feedbackType" required>
+                            <option value="">Selecione o tipo...</option>
+                            <option value="bug">🐛 Reportar Bug</option>
+                            <option value="suggestion">
+                                💡 Sugestão de Melhoria
+                            </option>
+                            <option value="feature">
+                                ✨ Solicitar Nova Funcionalidade
+                            </option>
+                            <option value="other">📝 Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackName">👤 Seu Nome:</label>
+                        <input
+                            type="text"
+                            id="feedbackName"
+                            name="feedbackName"
+                            placeholder="Digite seu nome (opcional)"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackEmail">📧 E-mail:</label>
+                        <input
+                            type="email"
+                            id="feedbackEmail"
+                            name="feedbackEmail"
+                            placeholder="Digite seu e-mail (opcional)"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackTitle">📝 Título:</label>
+                        <input
+                            type="text"
+                            id="feedbackTitle"
+                            name="feedbackTitle"
+                            required
+                            placeholder="Resumo do feedback..."
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackDescription"
+                            >📄 Descrição Detalhada:</label
+                        >
+                        <textarea
+                            id="feedbackDescription"
+                            name="feedbackDescription"
+                            required
+                            placeholder="Descreva detalhadamente o bug, sugestão ou funcionalidade..."
+                            rows="6"
+                        ></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackPriority">⚡ Prioridade:</label>
+                        <select
+                            id="feedbackPriority"
+                            name="feedbackPriority"
+                            required
+                        >
+                            <option value="">Selecione a prioridade...</option>
+                            <option value="low">🟢 Baixa</option>
+                            <option value="medium">🟡 Média</option>
+                            <option value="high">🔴 Alta</option>
+                            <option value="critical">🚨 Crítica</option>
+                        </select>
+                    </div>
+                    <div class="feedback-actions">
+                        <button type="submit" class="btn-primary">
+                            📤 Enviar Feedback
+                        </button>
+                        <button
+                            type="button"
+                            id="btnCancelFeedback"
+                            class="btn-secondary"
+                        >
+                            ❌ Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Política de Privacidade -->
+        <div id="privacyModal" class="modal-overlay" style="display: none">
+            <div class="modal-content privacy-modal">
+                <div class="privacy-content">
+                    <h2>🔒 Política de Privacidade e Cookies</h2>
+
+                    <div class="security-box">
+                        <h3>🛡️ Segurança e Privacidade</h3>
+                        <p>
+                            <strong
+                                >Este sistema é 100% seguro e privado.</strong
+                            >
+                            Todos os dados são armazenados localmente em seu
+                            dispositivo, sem qualquer transmissão para
+                            servidores externos.
+                        </p>
+                    </div>
+
+                    <h3>🍪 Uso de Cookies e Armazenamento Local</h3>
+                    <p>Este sistema utiliza:</p>
+                    <ul>
+                        <li>
+                            <strong>localStorage:</strong> Para salvar
+                            registros, configurações e dados de sessão
+                        </li>
+                        <li>
+                            <strong>Cookies de sessão:</strong> Para manter o
+                            estado de login e preferências
+                        </li>
+                        <li>
+                            <strong>Armazenamento temporário:</strong> Para
+                            funcionalidades do sistema
+                        </li>
+                    </ul>
+
+                    <div class="highlight">
+                        <h3>⚠️ Importante</h3>
+                        <p>
+                            <strong
+                                >Não armazenamos nenhuma informação
+                                online.</strong
+                            >
+                            Todos os dados ficam exclusivamente em seu
+                            dispositivo. O único vínculo online é para envio de
+                            feedback por email quando você solicitar.
+                        </p>
+                    </div>
+
+                    <h3>💼 Uso Profissional</h3>
+                    <p>Este sistema é destinado exclusivamente para:</p>
+                    <ul>
+                        <li>Uso corporativo e profissional</li>
+                        <li>Controle de protocolos e registros</li>
+                        <li>Gestão de dados sensíveis de forma segura</li>
+                        <li>Compliance com políticas de privacidade</li>
+                    </ul>
+
+                    <h3>📧 Comunicação Online</h3>
+                    <p>O único recurso online disponível é:</p>
+                    <ul>
+                        <li>
+                            <strong>Sistema de Feedback:</strong> Envio de
+                            sugestões, bugs ou solicitações por email
+                        </li>
+                        <li>
+                            <strong>Formspree:</strong> Serviço de email para
+                            receber feedback
+                        </li>
+                        <li>
+                            <strong>Dados enviados:</strong> Apenas informações
+                            do feedback (nome, email, descrição)
+                        </li>
+                    </ul>
+
+                    <h3>🔐 Proteção de Dados</h3>
+                    <p>Seus dados estão protegidos porque:</p>
+                    <ul>
+                        <li>Não há servidor central armazenando informações</li>
+                        <li>Dados ficam apenas em seu dispositivo</li>
+                        <li>Sem rastreamento ou analytics</li>
+                        <li>Sem compartilhamento com terceiros</li>
+                    </ul>
+
+                    <h3>📱 Responsabilidade do Usuário</h3>
+                    <p>Como os dados ficam em seu dispositivo:</p>
+                    <ul>
+                        <li>Faça backup regular dos dados exportados</li>
+                        <li>Mantenha seu dispositivo seguro</li>
+                        <li>Use em ambientes confiáveis</li>
+                        <li>Limpe dados quando necessário</li>
+                    </ul>
+
+                    <div class="security-box">
+                        <h3>✅ Conformidade</h3>
+                        <p>Este sistema está em conformidade com:</p>
+                        <ul>
+                            <li>LGPD (Lei Geral de Proteção de Dados)</li>
+                            <li>Políticas de privacidade corporativas</li>
+                            <li>Boas práticas de segurança</li>
+                            <li>Princípios de proteção de dados</li>
+                        </ul>
+                    </div>
+
+                    <h3>📞 Contato</h3>
+                    <p>Para dúvidas sobre privacidade ou segurança:</p>
+                    <ul>
+                        <li>
+                            Use o sistema de feedback na página de visualização
+                        </li>
+                        <li>Email: Através do formulário de feedback</li>
+                        <li>Telefone: +55 11 99123-1629</li>
+                    </ul>
+                </div>
+                <div class="modal-buttons" style="margin-top: 20px">
+                    <button id="closePrivacyModal" class="btn-primary">
+                        ✅ Entendi e Aceito
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
         <script>
+            // ===== SISTEMA DE COOKIE CONSENT =====
+            // Verificar se o usuário já aceitou os cookies
+            function checkCookieConsent() {
+                const consent = localStorage.getItem("cookieConsent");
+                if (!consent) {
+                    // Mostrar banner de cookies
+                    document.getElementById("cookieBanner").style.display =
+                        "block";
+                }
+            }
+
+            // Aceitar cookies
+            function acceptCookies() {
+                localStorage.setItem("cookieConsent", "accepted");
+                localStorage.setItem(
+                    "cookieConsentDate",
+                    new Date().toISOString()
+                );
+
+                // Esconder banner com animação
+                const banner = document.getElementById("cookieBanner");
+                banner.classList.add("hidden");
+
+                setTimeout(() => {
+                    banner.style.display = "none";
+                    banner.classList.remove("hidden");
+                }, 500);
+            }
+
+            // Mostrar modal de política de privacidade
+            function showPrivacyModal() {
+                document.getElementById("privacyModal").style.display = "flex";
+            }
+
+            // Fechar modal de política de privacidade
+            function closePrivacyModal() {
+                document.getElementById("privacyModal").style.display = "none";
+            }
+
             // Funções para puxar e exibir dados do localStorage
             function carregarRegistros() {
                 return JSON.parse(localStorage.getItem("registrosAPN") || "[]");
@@ -106,43 +552,57 @@
                 container.innerHTML = registros
                     .map(
                         (registro) => `
-            <div class="record-item">
-                <div class="record-header">
-                    <div class="record-number">Registro Nº${
-                        registro.numero
-                    }</div>
-                    <div class="resolution-badge resolution-${registro.resolucao
-                        .toLowerCase()
-                        .replace("ã", "a")}">
-                        ${registro.resolucao}
-                    </div>
-                </div>
-                <div class="record-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Empresa/CNPJ</div>
-                        <div class="detail-value">${registro.contrato}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Interlocutor</div>
-                        <div class="detail-value">${registro.interlocutor}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Protocolo</div>
-                        <div class="detail-value">${registro.protocolo}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Data da Ligação</div>
-                        <div class="detail-value">${formatarData(
-                            registro.dataLigacao
-                        )}</div>
-                    </div>
-                    <div class="detail-item" style="grid-column: 1 / -1;">
-                        <div class="detail-label">Motivo</div>
-                        <div class="detail-value">${registro.motivo}</div>
-                    </div>
-                </div>
-            </div>
-        `
+             <div class="record-item">
+                 <div class="record-header">
+                     <div class="record-number">Registro Nº${
+                         registro.numero
+                     }</div>
+                     <div class="resolution-badge resolution-${registro.resolucao
+                         .toLowerCase()
+                         .replace("ã", "a")}">
+                         ${registro.resolucao}
+                     </div>
+                 </div>
+                 <div class="record-details">
+                     <div class="detail-item">
+                         <div class="detail-label">Empresa/CNPJ</div>
+                         <div class="detail-value">${registro.contrato}</div>
+                     </div>
+                     <div class="detail-item">
+                         <div class="detail-label">Interlocutor</div>
+                         <div class="detail-value">${
+                             registro.interlocutor
+                         }</div>
+                     </div>
+                     <div class="detail-item">
+                         <div class="detail-label">Protocolo</div>
+                         <div class="detail-value">${registro.protocolo}</div>
+                     </div>
+                     <div class="detail-item">
+                         <div class="detail-label">Data da Ligação</div>
+                         <div class="detail-value">${formatarData(
+                             registro.dataLigacao
+                         )}</div>
+                     </div>
+                     <div class="detail-item" style="grid-column: 1 / -1;">
+                         <div class="detail-label">Motivo</div>
+                         <div class="detail-value">${registro.motivo}</div>
+                     </div>
+                 </div>
+                 <div class="record-actions">
+                     <button class="btn-action btn-edit" onclick="editarRegistro(${
+                         registro.numero
+                     })" title="Editar registro">
+                         ✏️ Editar
+                     </button>
+                     <button class="btn-action btn-delete" onclick="excluirRegistro(${
+                         registro.numero
+                     })" title="Excluir registro">
+                         🗑️ Excluir
+                     </button>
+                 </div>
+             </div>
+         `
                     )
                     .join("");
             }
@@ -272,25 +732,480 @@
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             }
-            document.addEventListener("DOMContentLoaded", function () {
-                const registros = carregarRegistros();
+
+            function exportarParaCSV(registros) {
+                if (!registros.length) {
+                    alert("Não há registros para exportar!");
+                    return;
+                }
+
+                // Cabeçalho do CSV
+                const headers = [
+                    "Número",
+                    "Empresa/CNPJ",
+                    "Interlocutor",
+                    "Protocolo",
+                    "Data da Ligação",
+                    "Motivo",
+                    "Resolução",
+                    "Timestamp",
+                ];
+
+                // Dados dos registros
+                const csvData = registros.map((registro) => [
+                    registro.numero,
+                    `"${registro.contrato}"`,
+                    `"${registro.interlocutor}"`,
+                    `"${registro.protocolo}"`,
+                    formatarData(registro.dataLigacao),
+                    `"${registro.motivo.replace(/"/g, '""')}"`, // Escapar aspas duplas
+                    registro.resolucao,
+                    registro.timestamp,
+                ]);
+
+                // Combinar cabeçalho e dados
+                const csvContent = [headers, ...csvData]
+                    .map((row) => row.join(","))
+                    .join("\n");
+
+                // Adicionar BOM para UTF-8
+                const BOM = "\uFEFF";
+                const blob = new Blob([BOM + csvContent], {
+                    type: "text/csv;charset=utf-8",
+                });
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `registros_apn_${
+                    new Date().toISOString().split("T")[0]
+                }.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+
+            function exportarParaJSON(registros) {
+                if (!registros.length) {
+                    alert("Não há registros para exportar!");
+                    return;
+                }
+
+                // Criar objeto com metadados e dados
+                const exportData = {
+                    metadata: {
+                        exportDate: new Date().toISOString(),
+                        totalRecords: registros.length,
+                        version: "1.0",
+                        description:
+                            "Exportação de registros APN para importação",
+                    },
+                    registros: registros,
+                };
+
+                const jsonContent = JSON.stringify(exportData, null, 2);
+                const blob = new Blob([jsonContent], {
+                    type: "application/json;charset=utf-8",
+                });
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `registros_apn_${
+                    new Date().toISOString().split("T")[0]
+                }.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }
+            // Variáveis globais para CRUD
+            let registros = [];
+            let registroEditando = null;
+
+            // Funções CRUD
+            function editarRegistro(numero) {
+                const registro = registros.find((r) => r.numero === numero);
+                if (!registro) return;
+
+                registroEditando = registro;
+
+                // Preencher formulário com dados do registro
+                document.getElementById("editContrato").value =
+                    registro.contrato;
+                document.getElementById("editInterlocutor").value =
+                    registro.interlocutor;
+                document.getElementById("editProtocolo").value =
+                    registro.protocolo;
+                document.getElementById("editDataLigacao").value =
+                    registro.dataLigacao;
+                document.getElementById("editMotivo").value = registro.motivo;
+
+                // Marcar radio button correto
+                document
+                    .querySelectorAll('input[name="resolucao"]')
+                    .forEach((radio) => {
+                        radio.checked = radio.value === registro.resolucao;
+                    });
+
+                // Mostrar modal
+                document.getElementById("modalEditar").style.display = "flex";
+            }
+
+            function excluirRegistro(numero) {
+                if (
+                    confirm(
+                        `Tem certeza que deseja excluir o Registro Nº${numero}? Esta ação não pode ser desfeita.`
+                    )
+                ) {
+                    registros = registros.filter((r) => r.numero !== numero);
+                    localStorage.setItem(
+                        "registrosAPN",
+                        JSON.stringify(registros)
+                    );
+
+                    // Atualizar interface
+                    exibirRegistros(registros);
+                    criarGrafico(registros);
+
+                    // Mostrar mensagem de sucesso
+                    mostrarMensagem(
+                        "Registro excluído com sucesso!",
+                        "success"
+                    );
+                }
+            }
+
+            function salvarEdicao(event) {
+                event.preventDefault();
+
+                if (!registroEditando) return;
+
+                const formData = new FormData(event.target);
+
+                // Atualizar dados do registro
+                registroEditando.contrato = formData.get("contrato");
+                registroEditando.interlocutor = formData.get("interlocutor");
+                registroEditando.protocolo = formData.get("protocolo");
+                registroEditando.dataLigacao = formData.get("dataLigacao");
+                registroEditando.motivo = formData.get("motivo");
+                registroEditando.resolucao = formData.get("resolucao");
+                registroEditando.timestamp = new Date().toISOString();
+
+                // Salvar no localStorage
+                localStorage.setItem("registrosAPN", JSON.stringify(registros));
+
+                // Fechar modal
+                fecharModalEdicao();
+
+                // Atualizar interface
                 exibirRegistros(registros);
                 criarGrafico(registros);
+
+                // Mostrar mensagem de sucesso
+                mostrarMensagem("Registro atualizado com sucesso!", "success");
+            }
+
+            function fecharModalEdicao() {
+                document.getElementById("modalEditar").style.display = "none";
+                document.getElementById("formEditar").reset();
+                registroEditando = null;
+            }
+
+            function mostrarMensagem(texto, tipo) {
+                const mensagem = document.createElement("div");
+                mensagem.className = `mensagem ${tipo}`;
+                mensagem.textContent = texto;
+
+                document.body.appendChild(mensagem);
+
+                setTimeout(() => {
+                    mensagem.remove();
+                }, 3000);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                checkCookieConsent(); // Chamar a função para verificar o consentimento
+                registros = carregarRegistros();
+                exibirRegistros(registros);
+                criarGrafico(registros);
+
+                // Event listeners para cookies
+                document
+                    .getElementById("acceptCookies")
+                    .addEventListener("click", acceptCookies);
+                document
+                    .getElementById("learnMore")
+                    .addEventListener("click", showPrivacyModal);
+                document
+                    .getElementById("closePrivacyModal")
+                    .addEventListener("click", closePrivacyModal);
+
+                // Fechar modal ao clicar fora
+                document
+                    .getElementById("privacyModal")
+                    .addEventListener("click", function (e) {
+                        if (e.target === this) {
+                            closePrivacyModal();
+                        }
+                    });
+
+                // Event listeners
                 document
                     .getElementById("exportChartBtn")
                     .addEventListener("click", function () {
                         exportarGraficoParaCSV(registros);
                     });
+
                 document
                     .getElementById("exportBtn")
                     .addEventListener("click", function () {
                         exportarParaTXT(registros);
                     });
+
+                document
+                    .getElementById("exportCsvBtn")
+                    .addEventListener("click", function () {
+                        exportarParaCSV(registros);
+                    });
+
+                document
+                    .getElementById("exportJsonBtn")
+                    .addEventListener("click", function () {
+                        exportarParaJSON(registros);
+                    });
+
                 document
                     .getElementById("btnVoltar")
                     .addEventListener("click", function () {
                         window.location.href = "index.html";
                     });
+
+                document
+                    .getElementById("btnImportar")
+                    .addEventListener("click", function () {
+                        window.location.href = "importar.html";
+                    });
+
+                document
+                    .getElementById("clearBtn")
+                    .addEventListener("click", function () {
+                        if (
+                            confirm(
+                                "Tem certeza que deseja limpar todos os registros? Esta ação não pode ser desfeita."
+                            )
+                        ) {
+                            localStorage.removeItem("registrosAPN");
+                            alert(
+                                "Todos os registros foram removidos com sucesso!"
+                            );
+                            window.location.reload();
+                        }
+                    });
+
+                // Event listeners para modal de edição
+                document
+                    .getElementById("formEditar")
+                    .addEventListener("submit", salvarEdicao);
+
+                document
+                    .getElementById("btnCancelarEdicao")
+                    .addEventListener("click", fecharModalEdicao);
+
+                // Fechar modal ao clicar fora
+                document
+                    .getElementById("modalEditar")
+                    .addEventListener("click", function (e) {
+                        if (e.target === this) {
+                            fecharModalEdicao();
+                        }
+                    });
+
+                // ===== SISTEMA DE FEEDBACK =====
+                // Configuração do Formspree
+                const FORMSPREE_ENDPOINT =
+                    "https://formspree.io/f/service_gzeyzlb";
+
+                // Event listeners para o sistema de feedback
+                const btnFeedback = document.getElementById("btnFeedback");
+                if (btnFeedback) {
+                    btnFeedback.addEventListener("click", function () {
+                        document.getElementById("feedbackModal").style.display =
+                            "flex";
+                    });
+                }
+
+                const btnCancelFeedback =
+                    document.getElementById("btnCancelFeedback");
+                if (btnCancelFeedback) {
+                    btnCancelFeedback.addEventListener("click", function () {
+                        fecharModalFeedback();
+                    });
+                }
+
+                const feedbackForm = document.getElementById("feedbackForm");
+                if (feedbackForm) {
+                    feedbackForm.addEventListener("submit", function (e) {
+                        e.preventDefault();
+                        enviarFeedback();
+                    });
+                }
+
+                const feedbackModal = document.getElementById("feedbackModal");
+                if (feedbackModal) {
+                    feedbackModal.addEventListener("click", function (e) {
+                        if (e.target === this) {
+                            fecharModalFeedback();
+                        }
+                    });
+                }
+
+                // Função para fechar modal de feedback
+                function fecharModalFeedback() {
+                    const modal = document.getElementById("feedbackModal");
+                    const form = document.getElementById("feedbackForm");
+                    if (modal) modal.style.display = "none";
+                    if (form) form.reset();
+                }
+
+                // Função para enviar feedback
+                async function enviarFeedback() {
+                    const formData = new FormData(
+                        document.getElementById("feedbackForm")
+                    );
+                    const feedback = {
+                        type: formData.get("feedbackType"),
+                        name: formData.get("feedbackName") || "Anônimo",
+                        email: formData.get("feedbackEmail") || "Não informado",
+                        title: formData.get("feedbackTitle"),
+                        description: formData.get("feedbackDescription"),
+                        priority: formData.get("feedbackPriority"),
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        url: window.location.href,
+                    };
+
+                    // Salvar feedback no localStorage (backup)
+                    salvarFeedback(feedback);
+
+                    try {
+                        // Enviar email via Formspree
+                        await enviarEmailFormspree(feedback);
+
+                        // Mostrar mensagem de sucesso
+                        mostrarMensagemFeedback(
+                            "✅ Feedback enviado com sucesso! Obrigado por contribuir.",
+                            "success"
+                        );
+                    } catch (error) {
+                        console.error("Erro ao enviar email:", error);
+                        // Mostrar mensagem de erro, mas informar que foi salvo localmente
+                        mostrarMensagemFeedback(
+                            "⚠️ Email não enviado, mas feedback salvo localmente. Tente novamente mais tarde.",
+                            "error"
+                        );
+                    }
+
+                    // Fechar modal
+                    fecharModalFeedback();
+                }
+
+                // Função para enviar email via Formspree
+                async function enviarEmailFormspree(feedback) {
+                    const emailData = {
+                        subject: `[APN Feedback] ${
+                            feedback.title
+                        } - ${getTipoFeedback(feedback.type)}`,
+                        message: `
+📝 NOVO FEEDBACK - SISTEMA APN
+
+👤 Nome: ${feedback.name}
+📧 Email: ${feedback.email}
+📋 Tipo: ${getTipoFeedback(feedback.type)}
+📝 Título: ${feedback.title}
+⚡ Prioridade: ${getPrioridadeFeedback(feedback.priority)}
+📅 Data: ${new Date(feedback.timestamp).toLocaleString("pt-BR")}
+
+📄 DESCRIÇÃO:
+${feedback.description}
+
+🔍 INFORMAÇÕES TÉCNICAS:
+🌐 Navegador: ${feedback.userAgent}
+📱 Página: ${feedback.url}
+
+---
+Este email foi enviado automaticamente pelo sistema de feedback APN.
+                        `.trim(),
+                        _replyto:
+                            feedback.email !== "Não informado"
+                                ? feedback.email
+                                : undefined,
+                        _subject: `[APN Feedback] ${
+                            feedback.title
+                        } - ${getTipoFeedback(feedback.type)}`,
+                    };
+
+                    const response = await fetch(FORMSPREE_ENDPOINT, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(emailData),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `HTTP error! status: ${response.status}`
+                        );
+                    }
+
+                    return response;
+                }
+
+                // Função para salvar feedback no localStorage
+                function salvarFeedback(feedback) {
+                    const feedbacks = JSON.parse(
+                        localStorage.getItem("feedbacksAPN") || "[]"
+                    );
+                    feedbacks.push(feedback);
+                    localStorage.setItem(
+                        "feedbacksAPN",
+                        JSON.stringify(feedbacks)
+                    );
+                }
+
+                // Função para mostrar mensagem de feedback
+                function mostrarMensagemFeedback(texto, tipo) {
+                    const mensagem = document.createElement("div");
+                    mensagem.className = `mensagem ${tipo}`;
+                    mensagem.textContent = texto;
+                    document.body.appendChild(mensagem);
+                    setTimeout(() => {
+                        mensagem.remove();
+                    }, 5000);
+                }
+
+                // Funções auxiliares para tradução
+                function getTipoFeedback(type) {
+                    const tipos = {
+                        bug: "🐛 Reportar Bug",
+                        suggestion: "💡 Sugestão de Melhoria",
+                        feature: "✨ Solicitar Nova Funcionalidade",
+                        other: "📝 Outro",
+                    };
+                    return tipos[type] || type;
+                }
+
+                function getPrioridadeFeedback(priority) {
+                    const prioridades = {
+                        low: "🟢 Baixa",
+                        medium: "🟡 Média",
+                        high: "🔴 Alta",
+                        critical: "🚨 Crítica",
+                    };
+                    return prioridades[priority] || priority;
+                }
             });
         </script>
     </body>

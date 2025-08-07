@@ -8,9 +8,64 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <!-- Cookie Consent Banner -->
+        <div id="cookieBanner" class="cookie-banner">
+            <div class="cookie-content">
+                <div class="cookie-text">
+                    <h3>🍪 Política de Privacidade e Cookies</h3>
+                    <p>
+                        Este site utiliza cookies e armazenamento local para
+                        funcionamento adequado.
+                        <strong
+                            >Não armazenamos nenhuma informação online</strong
+                        >
+                        - todos os dados ficam salvos apenas no seu dispositivo
+                        (localStorage). O único vínculo online é para envio de
+                        feedback por email quando solicitado.
+                    </p>
+                    <p>
+                        <strong>Uso Profissional:</strong> Este sistema é
+                        destinado exclusivamente para uso profissional e
+                        corporativo. Todos os dados são mantidos localmente em
+                        seu dispositivo para máxima segurança e privacidade.
+                    </p>
+                </div>
+                <div class="cookie-actions">
+                    <button id="acceptCookies" class="btn-primary">
+                        ✅ Aceitar e Continuar
+                    </button>
+                    <button id="learnMore" class="btn-secondary">
+                        📖 Saber Mais
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="pid-warning" class="pid-warning">
             ⚠️ <strong>Atenção:</strong> Não esqueça de pedir o
-            <strong>PID</strong> ao iniciar o atendimento!
+            <strong>PID</strong
+            ><span class="pid-info-icon" title="Clique para mais informações"
+                >ℹ️</span
+            >
+            ao iniciar o atendimento!
+            <div class="pid-tooltip">
+                <div class="tooltip-content">
+                    <h4>O que é o PID?</h4>
+                    <p>
+                        <strong>PID</strong> significa
+                        <strong>Protocolo de Identificação</strong> e contém:
+                    </p>
+                    <ul>
+                        <li>📝 <strong>Nome completo</strong> do cliente</li>
+                        <li>📅 <strong>Data de nascimento</strong></li>
+                        <li>🔢 <strong>3 primeiros dígitos do CPF</strong></li>
+                    </ul>
+                    <p class="tooltip-note">
+                        Essas informações são essenciais para identificar o
+                        cliente corretamente.
+                    </p>
+                </div>
+            </div>
         </div>
         <!-- Modal para Contrato/CNPJ -->
         <div id="modalContrato" class="modal-overlay" style="display: none">
@@ -41,32 +96,59 @@
         <div id="modalPID" class="modal-overlay" style="display: none">
             <div class="modal-content">
                 <h2>Você confirmou o PID?</h2>
-                <button
-                    id="btnPIDSim"
-                    class="btn-primary"
-                    style="margin: 10px 10px 0 0"
-                >
-                    Sim
-                </button>
-                <button
-                    id="btnPIDNao"
-                    class="btn-secondary"
-                    style="
-                        background: linear-gradient(
-                            135deg,
-                            #f56565 0%,
-                            #ed8936 100%
-                        );
-                    "
-                >
-                    Não
-                </button>
+
+                <div class="pid-info-section">
+                    <h4>📋 O que é o PID?</h4>
+                    <p>
+                        <strong>PID</strong> significa
+                        <strong>Protocolo de Identificação</strong> e contém:
+                    </p>
+                    <ul class="pid-info-list">
+                        <li>📝 <strong>Nome completo</strong> do cliente</li>
+                        <li>📅 <strong>Data de nascimento</strong></li>
+                        <li>🔢 <strong>3 primeiros dígitos do CPF</strong></li>
+                    </ul>
+                    <p class="pid-info-note">
+                        Essas informações são essenciais para identificar o
+                        cliente corretamente.
+                    </p>
+                </div>
+
+                <div class="modal-buttons">
+                    <button
+                        id="btnPIDSim"
+                        class="btn-primary"
+                        style="margin: 10px 10px 0 0"
+                    >
+                        Sim
+                    </button>
+                    <button
+                        id="btnPIDNao"
+                        class="btn-secondary"
+                        style="
+                            background: linear-gradient(
+                                135deg,
+                                #f56565 0%,
+                                #ed8936 100%
+                            );
+                        "
+                    >
+                        Não
+                    </button>
+                </div>
             </div>
         </div>
+
         <div class="container">
             <div class="header">
-                <h1>📝 Diário de Registro APN</h1>
-                <p>Sistema de controle e acompanhamento de protocolos</p>
+                <div class="header-top">
+                    <div class="header-left">
+                        <h1>📝 Diário de Registro APN</h1>
+                        <p>
+                            Sistema de controle e acompanhamento de protocolos
+                        </p>
+                    </div>
+                </div>
             </div>
             <div class="content">
                 <div class="form-section">
@@ -167,19 +249,6 @@
                         </button>
                     </form>
                 </div>
-                <div class="stats-section">
-                    <h2>📊 Estatísticas</h2>
-                    <div class="chart-container">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                    <button
-                        id="exportChartBtn"
-                        class="btn-secondary"
-                        style="margin-top: 18px"
-                    >
-                        ⬇️ Exportar Gráfico para CSV
-                    </button>
-                </div>
                 <div class="records-section">
                     <div
                         style="
@@ -192,20 +261,6 @@
                         <h2>Registros Salvos</h2>
                         <button id="exportBtn" class="btn-secondary">
                             📁 Exportar para TXT
-                        </button>
-                        <button
-                            id="clearBtn"
-                            class="btn-secondary"
-                            style="
-                                background: linear-gradient(
-                                    135deg,
-                                    #f56565 0%,
-                                    #ed8936 100%
-                                );
-                                margin-left: 10px;
-                            "
-                        >
-                            🗑️ Limpar Registros
                         </button>
                     </div>
                     <div id="recordsList"></div>
@@ -223,7 +278,128 @@
                 </p>
             </div>
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+        <!-- Modal de Política de Privacidade -->
+        <div id="privacyModal" class="modal-overlay" style="display: none">
+            <div class="modal-content privacy-modal">
+                <div class="privacy-content">
+                    <h2>🔒 Política de Privacidade e Cookies</h2>
+
+                    <div class="security-box">
+                        <h3>🛡️ Segurança e Privacidade</h3>
+                        <p>
+                            <strong
+                                >Este sistema é 100% seguro e privado.</strong
+                            >
+                            Todos os dados são armazenados localmente em seu
+                            dispositivo, sem qualquer transmissão para
+                            servidores externos.
+                        </p>
+                    </div>
+
+                    <h3>🍪 Uso de Cookies e Armazenamento Local</h3>
+                    <p>Este sistema utiliza:</p>
+                    <ul>
+                        <li>
+                            <strong>localStorage:</strong> Para salvar
+                            registros, configurações e dados de sessão
+                        </li>
+                        <li>
+                            <strong>Cookies de sessão:</strong> Para manter o
+                            estado de login e preferências
+                        </li>
+                        <li>
+                            <strong>Armazenamento temporário:</strong> Para
+                            funcionalidades do sistema
+                        </li>
+                    </ul>
+
+                    <div class="highlight">
+                        <h3>⚠️ Importante</h3>
+                        <p>
+                            <strong
+                                >Não armazenamos nenhuma informação
+                                online.</strong
+                            >
+                            Todos os dados ficam exclusivamente em seu
+                            dispositivo. O único vínculo online é para envio de
+                            feedback por email quando você solicitar.
+                        </p>
+                    </div>
+
+                    <h3>💼 Uso Profissional</h3>
+                    <p>Este sistema é destinado exclusivamente para:</p>
+                    <ul>
+                        <li>Uso corporativo e profissional</li>
+                        <li>Controle de protocolos e registros</li>
+                        <li>Gestão de dados sensíveis de forma segura</li>
+                        <li>Compliance com políticas de privacidade</li>
+                    </ul>
+
+                    <h3>📧 Comunicação Online</h3>
+                    <p>O único recurso online disponível é:</p>
+                    <ul>
+                        <li>
+                            <strong>Sistema de Feedback:</strong> Envio de
+                            sugestões, bugs ou solicitações por email
+                        </li>
+                        <li>
+                            <strong>Formspree:</strong> Serviço de email para
+                            receber feedback
+                        </li>
+                        <li>
+                            <strong>Dados enviados:</strong> Apenas informações
+                            do feedback (nome, email, descrição)
+                        </li>
+                    </ul>
+
+                    <h3>🔐 Proteção de Dados</h3>
+                    <p>Seus dados estão protegidos porque:</p>
+                    <ul>
+                        <li>Não há servidor central armazenando informações</li>
+                        <li>Dados ficam apenas em seu dispositivo</li>
+                        <li>Sem rastreamento ou analytics</li>
+                        <li>Sem compartilhamento com terceiros</li>
+                    </ul>
+
+                    <h3>📱 Responsabilidade do Usuário</h3>
+                    <p>Como os dados ficam em seu dispositivo:</p>
+                    <ul>
+                        <li>Faça backup regular dos dados exportados</li>
+                        <li>Mantenha seu dispositivo seguro</li>
+                        <li>Use em ambientes confiáveis</li>
+                        <li>Limpe dados quando necessário</li>
+                    </ul>
+
+                    <div class="security-box">
+                        <h3>✅ Conformidade</h3>
+                        <p>Este sistema está em conformidade com:</p>
+                        <ul>
+                            <li>LGPD (Lei Geral de Proteção de Dados)</li>
+                            <li>Políticas de privacidade corporativas</li>
+                            <li>Boas práticas de segurança</li>
+                            <li>Princípios de proteção de dados</li>
+                        </ul>
+                    </div>
+
+                    <h3>📞 Contato</h3>
+                    <p>Para dúvidas sobre privacidade ou segurança:</p>
+                    <ul>
+                        <li>
+                            Use o sistema de feedback na página de visualização
+                        </li>
+                        <li>Email: Através do formulário de feedback</li>
+                        <li>Telefone: +55 11 99123-1629</li>
+                    </ul>
+                </div>
+                <div class="modal-buttons" style="margin-top: 20px">
+                    <button id="closePrivacyModal" class="btn-primary">
+                        ✅ Entendi e Aceito
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <script src="script.js"></script>
     </body>
 </html>

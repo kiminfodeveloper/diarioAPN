@@ -1,10 +1,69 @@
 // Variáveis globais
 let registros = [];
 let contadorRegistros = 1;
-let statusChart = null;
 
 // Controle de bloqueio do formulário
 let bloqueado = true;
+
+// ===== SISTEMA DE COOKIE CONSENT =====
+// Verificar se o usuário já aceitou os cookies
+function checkCookieConsent() {
+    const consent = localStorage.getItem("cookieConsent");
+    if (!consent) {
+        // Mostrar banner de cookies
+        document.getElementById("cookieBanner").style.display = "block";
+    }
+}
+
+// Aceitar cookies
+function acceptCookies() {
+    localStorage.setItem("cookieConsent", "accepted");
+    localStorage.setItem("cookieConsentDate", new Date().toISOString());
+
+    // Esconder banner com animação
+    const banner = document.getElementById("cookieBanner");
+    banner.classList.add("hidden");
+
+    setTimeout(() => {
+        banner.style.display = "none";
+        banner.classList.remove("hidden");
+    }, 500);
+}
+
+// Mostrar modal de política de privacidade
+function showPrivacyModal() {
+    document.getElementById("privacyModal").style.display = "flex";
+}
+
+// Fechar modal de política de privacidade
+function closePrivacyModal() {
+    document.getElementById("privacyModal").style.display = "none";
+}
+
+// Inicializar sistema de cookies
+document.addEventListener("DOMContentLoaded", function () {
+    checkCookieConsent();
+
+    // Event listeners para cookies
+    document
+        .getElementById("acceptCookies")
+        .addEventListener("click", acceptCookies);
+    document
+        .getElementById("learnMore")
+        .addEventListener("click", showPrivacyModal);
+    document
+        .getElementById("closePrivacyModal")
+        .addEventListener("click", closePrivacyModal);
+
+    // Fechar modal ao clicar fora
+    document
+        .getElementById("privacyModal")
+        .addEventListener("click", function (e) {
+            if (e.target === this) {
+                closePrivacyModal();
+            }
+        });
+});
 
 // Ao carregar a página, exibir modal de contrato/CNPJ
 window.addEventListener("DOMContentLoaded", function () {
@@ -85,7 +144,6 @@ registroForm.addEventListener("submit", function (e) {
 document.addEventListener("DOMContentLoaded", function () {
     carregarRegistros();
     exibirRegistros();
-    criarGrafico();
 
     // Definir data atual por padrão
     document.getElementById("dataLigacao").valueAsDate = new Date();
@@ -101,39 +159,11 @@ document
 
 document.getElementById("exportBtn").addEventListener("click", exportarParaTXT);
 
-document.getElementById("clearBtn").addEventListener("click", limparRegistros);
-
-document
-    .getElementById("exportChartBtn")
-    .addEventListener("click", exportarGraficoParaCSV);
-
 const btnVisualizar = document.getElementById("btnVisualizar");
 if (btnVisualizar) {
     btnVisualizar.addEventListener("click", function () {
         window.location.href = "visualizar.html";
     });
-}
-
-function exportarGraficoParaCSV() {
-    const stats = calcularEstatisticas();
-    const linhas = [
-        ["Status", "Quantidade"],
-        ["Resolvido", stats.resolvidos],
-        ["BKO", stats.bko],
-        ["Supervisão", stats.supervisao],
-    ];
-    const csv = linhas.map((linha) => linha.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `estatisticas_grafico_apn_${
-        new Date().toISOString().split("T")[0]
-    }.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
 }
 
 // Função para limpar registros do localStorage e atualizar a interface
@@ -147,7 +177,6 @@ function limparRegistros() {
         registros = [];
         contadorRegistros = 1;
         exibirRegistros();
-        atualizarGrafico();
         mostrarMensagemLimpeza();
     }
 }
@@ -208,9 +237,6 @@ function salvarRegistro() {
 
     // Atualizar lista
     exibirRegistros();
-
-    // Atualizar gráfico
-    atualizarGrafico();
 
     // Bloquear novamente e pedir novo Contrato/CNPJ e PID
     bloqueado = true;
@@ -335,135 +361,4 @@ function exportarParaTXT() {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
-}
-
-// Função para criar gráfico
-function criarGrafico() {
-    const ctx = document.getElementById("statusChart").getContext("2d");
-
-    if (registros.length === 0) {
-        document.querySelector(".chart-container").innerHTML =
-            '<div class="no-data-message">📊 Nenhum dado disponível para exibir gráfico</div>';
-        return;
-    }
-
-    const dados = calcularEstatisticas();
-
-    statusChart = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-            labels: ["Resolvidos", "BKO", "Supervisão"],
-            datasets: [
-                {
-                    data: [dados.resolvidos, dados.bko, dados.supervisao],
-                    backgroundColor: [
-                        "#48bb78", // Verde para resolvidos
-                        "#f56565", // Vermelho para BKO
-                        "#ed8936", // Laranja para Supervisão
-                    ],
-                    borderColor: ["#38a169", "#e53e3e", "#dd6b20"],
-                    borderWidth: 2,
-                    hoverOffset: 10,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Status dos Protocolos",
-                    font: {
-                        size: 16,
-                        weight: "bold",
-                    },
-                    color: "#4a5568",
-                },
-                legend: {
-                    position: "bottom",
-                    labels: {
-                        padding: 20,
-                        font: {
-                            size: 12,
-                        },
-                        color: "#4a5568",
-                    },
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const label = context.label || "";
-                            const value = context.parsed;
-                            const total = context.dataset.data.reduce(
-                                (a, b) => a + b,
-                                0
-                            );
-                            const percentage = ((value / total) * 100).toFixed(
-                                1
-                            );
-                            return `${label}: ${value} (${percentage}%)`;
-                        },
-                    },
-                },
-            },
-        },
-    });
-}
-
-// Função para calcular estatísticas
-function calcularEstatisticas() {
-    const stats = {
-        resolvidos: 0,
-        bko: 0,
-        supervisao: 0,
-    };
-
-    registros.forEach((registro) => {
-        switch (registro.resolucao) {
-            case "Resolvido":
-                stats.resolvidos++;
-                break;
-            case "BKO":
-                stats.bko++;
-                break;
-            case "Supervisão":
-                stats.supervisao++;
-                break;
-        }
-    });
-
-    return stats;
-}
-
-// Função para atualizar gráfico
-function atualizarGrafico() {
-    if (registros.length === 0) {
-        if (statusChart) {
-            statusChart.destroy();
-            statusChart = null;
-        }
-        document.querySelector(".chart-container").innerHTML =
-            '<div class="no-data-message">📊 Nenhum dado disponível para exibir gráfico</div>';
-        return;
-    }
-
-    const dados = calcularEstatisticas();
-
-    if (!statusChart) {
-        // Se o gráfico não existe, criar
-        if (document.querySelector(".no-data-message")) {
-            document.querySelector(".chart-container").innerHTML =
-                '<canvas id="statusChart"></canvas>';
-        }
-        criarGrafico();
-    } else {
-        // Atualizar dados existentes
-        statusChart.data.datasets[0].data = [
-            dados.resolvidos,
-            dados.bko,
-            dados.supervisao,
-        ];
-        statusChart.update();
-    }
 }

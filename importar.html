@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Importar Registros - Diário APN</title>
+        <link rel="icon" href="logo.png" type="image/png" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal-overlay">
+            <div class="modal-content login-modal">
+                <div class="login-header">
+                    <h2>🔐 Acesso Restrito</h2>
+                    <p>
+                        Faça login para acessar a funcionalidade de importação
+                    </p>
+                </div>
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username">👤 Usuário:</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            required
+                            placeholder="Digite seu usuário"
+                            autocomplete="username"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">🔒 Senha:</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                        />
+                    </div>
+                    <div class="login-actions">
+                        <button type="submit" class="btn-primary">
+                            🔑 Entrar
+                        </button>
+                        <button
+                            type="button"
+                            id="btnVoltarLogin"
+                            class="btn-secondary"
+                        >
+                            ⬅️ Voltar
+                        </button>
+                    </div>
+                </form>
+                <div id="loginError" class="login-error" style="display: none">
+                    ❌ Usuário ou senha incorretos
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content (hidden until login) -->
+        <div id="mainContent" class="container" style="display: none">
+            <div class="header">
+                <div class="header-top">
+                    <h1>📥 Importar Registros APN</h1>
+                    <div class="user-info">
+                        <span id="userDisplay">👤 Usuário</span>
+                        <button id="btnLogout" class="btn-logout" title="Sair">
+                            🚪 Sair
+                        </button>
+                    </div>
+                </div>
+                <p>
+                    Importe registros de arquivos JSON ou CSV exportados
+                    anteriormente.
+                </p>
+            </div>
+            <div class="content">
+                <div class="import-section">
+                    <h2>📋 Selecionar Arquivo</h2>
+                    <div class="import-options">
+                        <div class="import-option">
+                            <h3>🔄 Arquivo JSON</h3>
+                            <p>Formato completo com metadados (recomendado)</p>
+                            <input
+                                type="file"
+                                id="jsonFile"
+                                accept=".json"
+                                style="display: none"
+                            />
+                            <button
+                                class="btn-primary"
+                                onclick="document.getElementById('jsonFile').click()"
+                            >
+                                📁 Selecionar JSON
+                            </button>
+                        </div>
+
+                        <div class="import-option">
+                            <h3>📊 Arquivo CSV</h3>
+                            <p>Formato de planilha com dados dos registros</p>
+                            <input
+                                type="file"
+                                id="csvFile"
+                                accept=".csv"
+                                style="display: none"
+                            />
+                            <button
+                                class="btn-primary"
+                                onclick="document.getElementById('csvFile').click()"
+                            >
+                                📁 Selecionar CSV
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="fileInfo" class="file-info" style="display: none">
+                        <h3>📄 Informações do Arquivo</h3>
+                        <div id="fileDetails"></div>
+                        <div class="import-actions">
+                            <button id="btnImportar" class="btn-primary">
+                                ✅ Importar Registros
+                            </button>
+                            <button id="btnCancelar" class="btn-secondary">
+                                ❌ Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-section" style="display: none">
+                    <h2>👁️ Prévia dos Registros</h2>
+                    <div id="previewContent"></div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button id="btnVoltar" class="btn-secondary">
+                        ⬅️ Voltar para Visualização
+                    </button>
+                    <button id="btnIrRegistro" class="btn-secondary">
+                        ➕ Ir para Registro
+                    </button>
+                </div>
+            </div>
+            <div class="footer">
+                <p>Desenvolvido por <strong>KIM Info TEC</strong></p>
+                <p>
+                    <a
+                        href="https://github.com/kiminfodeveloper/diarioAPN"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        📄 Documentação no GitHub
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <script>
+            // Login System Variables
+            let isLoggedIn = false;
+            let currentUser = null;
+
+            // Default credentials (in a real app, this would be server-side)
+            const VALID_CREDENTIALS = {
+                admin: "admin123",
+                user: "user123",
+                kim: "kim123",
+            };
+
+            // Import System Variables
+            let arquivoSelecionado = null;
+            let dadosImportacao = null;
+
+            // Check if user is already logged in
+            function checkLoginStatus() {
+                const savedUser = localStorage.getItem("importarUser");
+                if (savedUser) {
+                    currentUser = savedUser;
+                    isLoggedIn = true;
+                    showMainContent();
+                } else {
+                    showLoginModal();
+                }
+            }
+
+            // Show login modal
+            function showLoginModal() {
+                document.getElementById("loginModal").style.display = "flex";
+                document.getElementById("mainContent").style.display = "none";
+                document.getElementById("username").focus();
+            }
+
+            // Show main content after login
+            function showMainContent() {
+                document.getElementById("loginModal").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+                document.getElementById(
+                    "userDisplay"
+                ).textContent = `👤 ${currentUser}`;
+            }
+
+            // Handle login form submission
+            function handleLogin(event) {
+                event.preventDefault();
+
+                const username = document
+                    .getElementById("username")
+                    .value.trim();
+                const password = document.getElementById("password").value;
+                const loginError = document.getElementById("loginError");
+
+                // Validate credentials
+                if (
+                    VALID_CREDENTIALS[username] &&
+                    VALID_CREDENTIALS[username] === password
+                ) {
+                    currentUser = username;
+                    isLoggedIn = true;
+
+                    // Save login state
+                    localStorage.setItem("importarUser", username);
+
+                    // Clear form and hide error
+                    document.getElementById("loginForm").reset();
+                    loginError.style.display = "none";
+
+                    // Show main content
+                    showMainContent();
+
+                    // Show success message
+                    mostrarMensagem(`✅ Bem-vindo, ${username}!`, "success");
+                } else {
+                    // Show error
+                    loginError.style.display = "block";
+                    document.getElementById("password").value = "";
+                    document.getElementById("password").focus();
+                }
+            }
+
+            // Handle logout
+            function handleLogout() {
+                isLoggedIn = false;
+                currentUser = null;
+                localStorage.removeItem("importarUser");
+                showLoginModal();
+                mostrarMensagem("👋 Logout realizado com sucesso!", "success");
+            }
+
+            // Initialize login system
+            document.addEventListener("DOMContentLoaded", function () {
+                checkLoginStatus();
+
+                // Login form event listener
+                document
+                    .getElementById("loginForm")
+                    .addEventListener("submit", handleLogin);
+
+                // Logout button event listener
+                document
+                    .getElementById("btnLogout")
+                    .addEventListener("click", handleLogout);
+
+                // Back button in login modal
+                document
+                    .getElementById("btnVoltarLogin")
+                    .addEventListener("click", function () {
+                        window.location.href = "visualizar.html";
+                    });
+            });
+
+            // Event listeners para seleção de arquivos
+            document
+                .getElementById("jsonFile")
+                .addEventListener("change", handleFileSelect);
+            document
+                .getElementById("csvFile")
+                .addEventListener("change", handleFileSelect);
+
+            // Event listeners para botões
+            document
+                .getElementById("btnImportar")
+                .addEventListener("click", importarRegistros);
+            document
+                .getElementById("btnCancelar")
+                .addEventListener("click", cancelarImportacao);
+            document
+                .getElementById("btnVoltar")
+                .addEventListener(
+                    "click",
+                    () => (window.location.href = "visualizar.html")
+                );
+            document
+                .getElementById("btnIrRegistro")
+                .addEventListener(
+                    "click",
+                    () => (window.location.href = "index.html")
+                );
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                arquivoSelecionado = file;
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    try {
+                        if (file.name.endsWith(".json")) {
+                            processarArquivoJSON(e.target.result);
+                        } else if (file.name.endsWith(".csv")) {
+                            processarArquivoCSV(e.target.result);
+                        }
+                    } catch (error) {
+                        mostrarMensagem(
+                            "Erro ao processar arquivo: " + error.message,
+                            "error"
+                        );
+                    }
+                };
+
+                reader.readAsText(file);
+            }
+
+            function processarArquivoJSON(content) {
+                const data = JSON.parse(content);
+
+                if (data.registros && Array.isArray(data.registros)) {
+                    dadosImportacao = data.registros;
+                    mostrarInfoArquivo(
+                        data.metadata || {},
+                        data.registros.length,
+                        "JSON"
+                    );
+                    mostrarPrevia(data.registros);
+                } else {
+                    throw new Error(
+                        'Formato JSON inválido. Arquivo deve conter campo "registros"'
+                    );
+                }
+            }
+
+            function processarArquivoCSV(content) {
+                const lines = content.split("\n");
+                if (lines.length < 2) {
+                    throw new Error("Arquivo CSV muito pequeno ou vazio");
+                }
+
+                const headers = lines[0].split(",").map((h) => h.trim());
+                const registros = [];
+
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim()) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length >= 7) {
+                            const registro = {
+                                numero: parseInt(values[0]) || 0,
+                                contrato: values[1] || "",
+                                interlocutor: values[2] || "",
+                                protocolo: values[3] || "",
+                                dataLigacao: values[4] || "",
+                                motivo: values[5] || "",
+                                resolucao: values[6] || "",
+                                timestamp:
+                                    values[7] || new Date().toISOString(),
+                            };
+                            registros.push(registro);
+                        }
+                    }
+                }
+
+                dadosImportacao = registros;
+                mostrarInfoArquivo({}, registros.length, "CSV");
+                mostrarPrevia(registros);
+            }
+
+            function parseCSVLine(line) {
+                const result = [];
+                let current = "";
+                let inQuotes = false;
+
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+
+                    if (char === '"') {
+                        if (inQuotes && line[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (char === "," && !inQuotes) {
+                        result.push(current.trim());
+                        current = "";
+                    } else {
+                        current += char;
+                    }
+                }
+
+                result.push(current.trim());
+                return result;
+            }
+
+            function mostrarInfoArquivo(metadata, totalRegistros, tipo) {
+                const fileInfo = document.getElementById("fileInfo");
+                const fileDetails = document.getElementById("fileDetails");
+
+                fileDetails.innerHTML = `
+                    <div class="file-detail">
+                        <strong>Nome:</strong> ${arquivoSelecionado.name}
+                    </div>
+                    <div class="file-detail">
+                        <strong>Tipo:</strong> ${tipo}
+                    </div>
+                    <div class="file-detail">
+                        <strong>Registros:</strong> ${totalRegistros}
+                    </div>
+                    ${
+                        metadata.exportDate
+                            ? `
+                    <div class="file-detail">
+                        <strong>Data de Exportação:</strong> ${new Date(
+                            metadata.exportDate
+                        ).toLocaleString("pt-BR")}
+                    </div>
+                    `
+                            : ""
+                    }
+                    ${
+                        metadata.description
+                            ? `
+                    <div class="file-detail">
+                        <strong>Descrição:</strong> ${metadata.description}
+                    </div>
+                    `
+                            : ""
+                    }
+                `;
+
+                fileInfo.style.display = "block";
+            }
+
+            function mostrarPrevia(registros) {
+                const previewSection =
+                    document.querySelector(".preview-section");
+                const previewContent =
+                    document.getElementById("previewContent");
+
+                const previewHTML = registros
+                    .slice(0, 3)
+                    .map(
+                        (registro) => `
+                    <div class="preview-item">
+                        <div class="preview-header">
+                            <strong>Registro Nº${registro.numero}</strong>
+                            <span class="preview-badge">${registro.resolucao}</span>
+                        </div>
+                        <div class="preview-details">
+                            <div><strong>Empresa:</strong> ${registro.contrato}</div>
+                            <div><strong>Interlocutor:</strong> ${registro.interlocutor}</div>
+                            <div><strong>Protocolo:</strong> ${registro.protocolo}</div>
+                        </div>
+                    </div>
+                `
+                    )
+                    .join("");
+
+                previewContent.innerHTML = `
+                    <div class="preview-info">
+                        <p>Mostrando os primeiros 3 registros de ${
+                            registros.length
+                        } total:</p>
+                    </div>
+                    ${previewHTML}
+                    ${
+                        registros.length > 3
+                            ? `
+                    <div class="preview-more">
+                        <p>... e mais ${registros.length - 3} registros</p>
+                    </div>
+                    `
+                            : ""
+                    }
+                `;
+
+                previewSection.style.display = "block";
+            }
+
+            function importarRegistros() {
+                if (!dadosImportacao || dadosImportacao.length === 0) {
+                    mostrarMensagem("Nenhum dado para importar", "error");
+                    return;
+                }
+
+                // Carregar registros existentes
+                const registrosExistentes = JSON.parse(
+                    localStorage.getItem("registrosAPN") || "[]"
+                );
+
+                // Encontrar o próximo número disponível
+                const maxNumero =
+                    registrosExistentes.length > 0
+                        ? Math.max(...registrosExistentes.map((r) => r.numero))
+                        : 0;
+
+                // Processar registros importados
+                const registrosProcessados = dadosImportacao.map(
+                    (registro, index) => ({
+                        ...registro,
+                        numero: maxNumero + index + 1,
+                        timestamp: new Date().toISOString(),
+                    })
+                );
+
+                // Combinar registros existentes com novos
+                const todosRegistros = [
+                    ...registrosExistentes,
+                    ...registrosProcessados,
+                ];
+
+                // Salvar no localStorage
+                localStorage.setItem(
+                    "registrosAPN",
+                    JSON.stringify(todosRegistros)
+                );
+
+                // Mostrar mensagem de sucesso
+                mostrarMensagem(
+                    `✅ ${registrosProcessados.length} registros importados com sucesso!`,
+                    "success"
+                );
+
+                // Limpar interface
+                setTimeout(() => {
+                    window.location.href = "visualizar.html";
+                }, 2000);
+            }
+
+            function cancelarImportacao() {
+                arquivoSelecionado = null;
+                dadosImportacao = null;
+
+                // Limpar inputs
+                document.getElementById("jsonFile").value = "";
+                document.getElementById("csvFile").value = "";
+
+                // Ocultar seções
+                document.getElementById("fileInfo").style.display = "none";
+                document.querySelector(".preview-section").style.display =
+                    "none";
+            }
+
+            function mostrarMensagem(texto, tipo) {
+                const mensagem = document.createElement("div");
+                mensagem.className = `mensagem ${tipo}`;
+                mensagem.textContent = texto;
+
+                document.body.appendChild(mensagem);
+
+                setTimeout(() => {
+                    mensagem.remove();
+                }, 5000);
+            }
+        </script>
+    </body>
+</html>
