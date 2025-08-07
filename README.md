@@ -167,16 +167,40 @@ cd diarioAPN
 
 ### Sistema de Email (Feedback)
 
-Para configurar o sistema de feedback:
+Para configurar o sistema de feedback, você tem duas opções:
 
-1. Crie uma conta no [Formspree](https://formspree.io/)
-2. Crie um novo formulário
-3. Copie o Form ID
-4. Atualize no arquivo `visualizar.html`:
+#### Opção 1: EmailJS (Recomendado)
+
+1. Crie uma conta no [EmailJS](https://www.emailjs.com/)
+2. Configure um serviço de email (Gmail, Outlook, etc.)
+3. Crie um template de email com as variáveis:
+    - `{{user_name}}` - Nome do usuário
+    - `{{user_email}}` - Email do usuário
+    - `{{feedback_type}}` - Tipo de feedback
+    - `{{feedback_title}}` - Título do feedback
+    - `{{feedback_priority}}` - Prioridade
+    - `{{feedback_description}}` - Descrição detalhada
+    - `{{feedback_timestamp}}` - Data/hora
+    - `{{user_agent}}` - Navegador
+    - `{{feedback_url}}` - Página de origem
+4. Copie os IDs necessários:
+    - **Service ID**: `service_gzeyzlb`
+    - **Template ID**: `template_u2wgjxl`
+    - **User ID**: `iIrbsM4l7b0J9D0Wh`
+5. Os IDs já estão configurados no arquivo `visualizar.html`
+
+#### Opção 2: Cliente de Email Padrão
+
+Se preferir não usar EmailJS, o sistema automaticamente abrirá o cliente de email padrão:
+
+1. Edite o arquivo `visualizar.html`
+2. Substitua o email em `abrirEmailCliente()`:
 
 ```javascript
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/SEU_FORM_ID";
+const emailTo = "seu-email@exemplo.com"; // ⚠️ Substitua pelo seu email
 ```
+
+**Nota**: Se o EmailJS não estiver configurado, o sistema automaticamente usará o cliente de email padrão.
 
 ### Sistema de Login
 
