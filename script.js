@@ -9,9 +9,14 @@ let bloqueado = true;
 // Verificar se o usuário já aceitou os cookies
 function checkCookieConsent() {
     const consent = localStorage.getItem("cookieConsent");
+    const cookieBanner = document.getElementById("cookieBanner");
+
     if (!consent) {
         // Mostrar banner de cookies
-        document.getElementById("cookieBanner").style.display = "block";
+        cookieBanner.style.display = "block";
+    } else {
+        // Esconder banner se já foi aceito
+        cookieBanner.style.display = "none";
     }
 }
 
